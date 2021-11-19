@@ -40,7 +40,7 @@ def yay_data_view(sf, yay):
             return dict(status='failure', data='Unknown yay')
 
         operations_query = f"""select v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index
-                              from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes v  
+                              from {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
                               where v.yay = '{yay}'
                               order by v.order_index, v.operation; """
 
@@ -146,7 +146,7 @@ def yay_page_view(sf, yay):
 
         yay = yay.lower()
 
-        titles_query = f"""select code, title from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays where code = '{yay}'; """
+        titles_query = f"""select code, title from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays where code = '{yay}'; """
         titles = sf.execute(titles_query).fetchone()
 
         if titles:
@@ -158,7 +158,7 @@ def yay_page_view(sf, yay):
         
         last_update = sf.execute(f"""
             SELECT max(load_id)
-            FROM {os.getenv("MCDGOV_DB", "mcd_public")}.internal.votes_scheduler
+            FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler
         """).fetchone()
 
         return render_template(

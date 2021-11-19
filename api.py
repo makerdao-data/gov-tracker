@@ -374,7 +374,7 @@ def get_ilks_state(request):
                 available_collateral,
                 owner,
                 collateralization
-            FROM mcd_public.public.current_vaults
+            FROM mcd.public.current_vaults
             ORDER BY principal + accrued_fees DESC; """
 
         vaults = sf.execute(vaults_query).fetchall()
@@ -383,7 +383,7 @@ def get_ilks_state(request):
             SELECT
                 distinct ilk,
                 last_value(mat) over (partition by ilk order by timestamp) as mat
-            FROM mcd_public.internal.mats; """
+            FROM mcd.internal.mats; """
 
         mats_records = sf.execute(mats_records_query).fetchall()
 
@@ -395,7 +395,7 @@ def get_ilks_state(request):
             SELECT
                 distinct token,
                 last_value(osm_price) over (partition by token order by time) as price
-            FROM mcd_public.internal.prices; """
+            FROM mcd.internal.prices; """
 
         prices_records = sf.execute(prices_records_query).fetchall()
 

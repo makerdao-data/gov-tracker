@@ -38,39 +38,39 @@ def main_page_data(sf):
 
         voters_query = f"""
             select distinct v.voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.public.current_voters v  
+            from {os.getenv("MCDGOV_DB", "mcd")}.public.current_voters v  
             order by v.stake desc; """
 
         yays_query = f"""
             select yay, option, first_voting, approval, voters, first_voting, type
             from
                 (select 'executive' as type, yay, null as option, round(sum(dapproval), 6) as approval, count(distinct voter) as voters, min(timestamp) as first_voting
-                from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes
+                from {os.getenv("MCDGOV_DB", "mcd")}.public.votes
                 where operation not in ('CHOOSE', 'FINAL_CHOICE', 'RETRACT', 'CREATE_PROXY', 'BREAK_PROXY')
                 group by yay
                 union
                 select 'poll' as type, yay, option, round(sum(dapproval), 6) as approval, count(distinct voter) as voters, min(timestamp) as first_voting
-                from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes
+                from {os.getenv("MCDGOV_DB", "mcd")}.public.votes
                 where operation in ('CHOOSE', 'RETRACT')
                 group by yay, option);
         """
 
         titles_query = f"""
             select code, title
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays;
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays;
         """
 
         hat_query = f"""
             select hat as hat
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes
+            from {os.getenv("MCDGOV_DB", "mcd")}.public.votes
             where operation != 'FINAL_CHOICE'
             order by order_index desc limit 1;
         """
 
         active_polls_query = f"""
             select code
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays
-            where type = 'poll' and end_timestamp > (select max(load_id) from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.votes_scheduler);
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays
+            where type = 'poll' and end_timestamp > (select max(load_id) from {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler);
         """
 
         all_queries = [
@@ -168,7 +168,7 @@ def main_page_data(sf):
 
         polls_no_votes = sf.execute(f"""
             select code, start_timestamp, title, 'Unknown', 1
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays
             where type = 'poll'
                 and block_ended is null
                 and code not in {tuple(polls_votes)};
@@ -223,7 +223,7 @@ def main_page_view(sf):
 
     last_update = sf.execute(f"""
         SELECT max(load_id)
-        FROM {os.getenv("MCDGOV_DB", "mcd_public")}.internal.votes_scheduler;
+        FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler;
     """).fetchone()
 
     try:

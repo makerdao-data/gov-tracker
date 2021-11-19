@@ -43,14 +43,14 @@ def address_data_view(sf, address):
 
         operations_query = f"""
             select timestamp, tx_hash, dstake, operation, yay, option, dapproval, decisive, order_index
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes 
+            from {os.getenv("MCDGOV_DB", "mcd")}.public.votes 
             where lower(voter) = '{address}' 
             order by timestamp, operation;
         """
 
         titles_query = f"""
             select code, title
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays;
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays;
         """
 
         all_queries = [
@@ -165,7 +165,7 @@ def address_page_view(sf, address):
             return render_template('unknown.html', object_name='address', object_value=address)
 
         address_data = sf.execute(f"""SELECT v.voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
-                                     FROM {os.getenv("MCDGOV_DB", "mcd_public")}.public.current_voters v  
+                                     FROM {os.getenv("MCDGOV_DB", "mcd")}.public.current_voters v  
                                      WHERE lower(v.voter) = \'%s\'; """ % address).fetchall()
 
         if len(address_data) != 1:
@@ -175,7 +175,7 @@ def address_page_view(sf, address):
 
         proxy = sf.execute(f"""
             select *
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.stg_proxies
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.stg_proxies
             where lower(hot) = lower('{address}')
             order by timestamp desc
             limit 1;
@@ -188,7 +188,7 @@ def address_page_view(sf, address):
 
         last_update = sf.execute(f"""
             SELECT max(load_id)
-            FROM {os.getenv("MCDGOV_DB", "mcd_public")}.internal.votes_scheduler
+            FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler
         """).fetchone()
 
         return render_template(

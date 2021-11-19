@@ -46,13 +46,13 @@ def poll_data_view(sf, poll):
         
         start, end = sf.execute(f"""
             select start_timestamp, end_timestamp
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.internal.yays
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.yays
             where type = 'poll' and code = '{poll}';
         """).fetchone()
 
         operations_query = f"""
             select v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.option, '', v.proxy
-            from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes v  
+            from {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
             where v.yay = '{poll}'
                 and v.timestamp >= '{start.__str__()[:19]}'
                 and v.timestamp <= '{end.__str__()[:19]}'
@@ -72,7 +72,7 @@ def poll_data_view(sf, poll):
         for i in operations:
             operations_supplementary_query = f"""
                 select v.timestamp, v.tx_hash, v.voter, v.operation, v.dstake, '{i[5]}', '', v.proxy
-                from {os.getenv("MCDGOV_DB", "mcd_public")}.public.votes v  
+                from {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
                 where v.voter = '{i[2]}'
                     and v.timestamp > '{i[0].__str__()[:19]}'
                     and v.timestamp <= '{end.__str__()[:19]}'
@@ -256,7 +256,7 @@ def poll_page_view(sf, poll):
         
         last_update = sf.execute(f"""
             SELECT max(load_id)
-            FROM {os.getenv("MCDGOV_DB", "mcd_public")}.internal.votes_scheduler;
+            FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler;
         """).fetchone()
 
         return render_template(

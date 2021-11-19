@@ -35,20 +35,6 @@ app.config['JSON_SORT_KEYS'] = False
 auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth(scheme='Bearer')
 
-users = {
-    "legal": generate_password_hash(GUI_PASSWORD1),
-    "internal": generate_password_hash(GUI_PASSWORD2),
-    "community": generate_password_hash(GUI_PASSWORD2)
-}
-
-
-# LOGIN authorization
-@auth.verify_password
-def verify_password(username, password):
-    if username in users and \
-            check_password_hash(users.get(username), password):
-        return username
-
 # ToDo: IRV voting
 
 # API authorization
