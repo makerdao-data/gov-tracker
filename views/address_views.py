@@ -175,7 +175,7 @@ def address_page_view(sf, address):
 
         proxy = sf.execute(f"""
             select *
-            from {os.getenv("MCDGOV_DB", "mcd")}.internal.stg_proxies
+            from {os.getenv("MCDGOV_DB", "mcd")}.internal.vote_proxies
             where lower(hot) = lower('{address}')
             order by timestamp desc
             limit 1;

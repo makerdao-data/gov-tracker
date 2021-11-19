@@ -26,7 +26,7 @@ from views.poll_views import poll_page_view, poll_data_view
 from views.proxy_views import proxy_page_view, proxy_data_view
 
 from connectors.sf import sf, sf_disconnect
-from config import API_TOKEN, GUI_PASSWORD1, GUI_PASSWORD2
+from config import API_TOKEN
 import api
 
 app = Flask(__name__)
