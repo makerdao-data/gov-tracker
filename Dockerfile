@@ -7,8 +7,6 @@ COPY . /app/
 
 RUN mkdir tmpfs
 
-ENV MCDGOV_DB=mcd_public
-
 RUN python3 -m venv /env
 RUN . /env/bin/activate
 RUN pip3 install --upgrade pip

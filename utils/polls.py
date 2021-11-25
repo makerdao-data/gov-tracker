@@ -22,7 +22,7 @@ def get_poll(poll, base_link='https://governance-portal-v2.now.sh'):
         title = options = None
         exists = False
     else:
-        content = response.json()
+        content = response.json()['polls']
         polls = {poll['pollId']: (poll['title'], poll['options']) for poll in content}
         if poll in polls:
             title, options = polls[poll]
@@ -43,7 +43,7 @@ def get_all_polls(base_link='https://governance-portal-v2.now.sh'):
         print('API error {}.'.format(response.status_code))
         polls = dict()
     else:
-        content = response.json()
+        content = response.json()['polls']
         polls = {str(poll['pollId']): (poll['title'], poll['options']) for poll in content}
 
     return polls

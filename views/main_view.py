@@ -11,14 +11,12 @@
 #  limitations under the License.
 
 import os
-from threading import active_count
 from flask import render_template
-from datetime import datetime
 
 from connectors.sf import sf_connect
 from utils.polls import get_all_polls
 from utils.utils import async_queries
-from utils.tables import html_table, link, poll_link
+from utils.tables import html_table, link
 
 
 def main_page_data(sf):
