@@ -12,11 +12,8 @@
 
 import os
 from flask import render_template
-from datetime import datetime
-
 from connectors.sf import sf_connect
 from utils.tables import html_table, link
-
 from graphs.yay_graph import yay_graph
 
 

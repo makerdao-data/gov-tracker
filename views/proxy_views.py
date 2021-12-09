@@ -12,14 +12,10 @@
 
 import os
 from flask import render_template
-from datetime import datetime, timezone
-
 from connectors.sf import sf_connect
 from utils.utils import async_queries
 from utils.tables import link
 from utils.polls import get_all_polls
-
-# from graphs.proxy_graph import proxy_graph
 
 
 def proxy_data_view(sf, proxy):

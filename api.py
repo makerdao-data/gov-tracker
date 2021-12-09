@@ -13,7 +13,6 @@
 import snowflake.connector
 from config import SNOWFLAKE_CONNECTION
 from flask import jsonify, make_response
-from datetime import datetime
 
 
 def vault_check(vault_id):

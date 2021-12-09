@@ -12,11 +12,8 @@
 
 # Public version #
 
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from datetime import datetime
 import atexit
 
 from views.main_view import main_page_view, main_page_data
