@@ -13,37 +13,39 @@
 import requests
 
 
-def get_poll(poll, base_link='https://governance-portal-v2.now.sh'):
+def get_poll(poll, base_link="https://governance-portal-v2.now.sh"):
 
-    response = requests.get(base_link + '/api/polling/all-polls')
+    response = requests.get(base_link + "/api/polling/all-polls")
     if response.status_code != 200:
         # something went wrong...
-        print('API error {}.'.format(response.status_code))
+        print("API error {}.".format(response.status_code))
         title = options = None
         exists = False
     else:
-        content = response.json()['polls']
-        polls = {poll['pollId']: (poll['title'], poll['options']) for poll in content}
+        content = response.json()["polls"]
+        polls = {poll["pollId"]: (poll["title"], poll["options"]) for poll in content}
         if poll in polls:
             title, options = polls[poll]
             exists = True
         else:
-            title = 'Unknown poll'
+            title = "Unknown poll"
             options = None
             exists = False
 
     return exists, title, options
 
 
-def get_all_polls(base_link='https://governance-portal-v2.now.sh'):
+def get_all_polls(base_link="https://governance-portal-v2.now.sh"):
 
-    response = requests.get(base_link + '/api/polling/all-polls')
+    response = requests.get(base_link + "/api/polling/all-polls")
     if response.status_code != 200:
         # something went wrong...
-        print('API error {}.'.format(response.status_code))
+        print("API error {}.".format(response.status_code))
         polls = dict()
     else:
-        content = response.json()['polls']
-        polls = {str(poll['pollId']): (poll['title'], poll['options']) for poll in content}
+        content = response.json()["polls"]
+        polls = {
+            str(poll["pollId"]): (poll["title"], poll["options"]) for poll in content
+        }
 
     return polls

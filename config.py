@@ -17,21 +17,13 @@ from dotenv import load_dotenv
 PROJECT_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 # load secrets from the local .env file
-load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
-
-# Blockchain node connection
-NODE = os.environ.get('BC_NODE')
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 # Snowflake connection
 SNOWFLAKE_CONNECTION = dict(
-    account=os.environ.get('SNOWFLAKE_ACCOUNT'),
-    user=os.environ.get('SNOWFLAKE_USER'),
-    password=os.environ.get('SNOWFLAKE_PASS'),
-    role=os.environ.get('SNOWFLAKE_ROLE'),
-    warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE')
+    account=os.environ.get("SNOWFLAKE_ACCOUNT"),
+    user=os.environ.get("SNOWFLAKE_USER"),
+    password=os.environ.get("SNOWFLAKE_PASS"),
+    role=os.environ.get("SNOWFLAKE_ROLE"),
+    warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
 )
-
-API_TOKEN = os.environ.get('API_PUBLIC_TOKEN')
-GUI_PASSWORD1 = os.environ.get('GUI_PASSWORD1')
-GUI_PASSWORD2 = os.environ.get('GUI_PASSWORD2')
-# GUI_PASSWORD3 = os.environ.get('GUI_PASSWORD3')

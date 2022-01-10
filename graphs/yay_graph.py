@@ -18,23 +18,33 @@ import plotly.graph_objs as go
 def yay_graph(x, y, labels):
 
     data1 = [
-            go.Scatter(
-                x=x,
-                y=y,
-                name='Approval (MKR)',
-                line={'color': '#1aab9b'},
-                fill='tozeroy',
-                mode="lines+markers",
-                text=labels,
-                yaxis="y"
-            )
-        ]
+        go.Scatter(
+            x=x,
+            y=y,
+            name="Approval (MKR)",
+            line={"color": "#1aab9b"},
+            fill="tozeroy",
+            mode="lines+markers",
+            text=labels,
+            yaxis="y",
+        )
+    ]
 
-    layout1 = go.Layout(title={'text': "MKR approval in time (UTC)", 'x': 0.5, 'xanchor': 'center', 'yanchor': 'top'},
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        height=239, margin={"b": 20, "l": 20, "r": 10, "t": 45, "pad": 10},
-                        xaxis={'gridcolor': '#F0F0F0'}, yaxis={'gridcolor': '#F0F0F0'},
-                        hovermode="x unified", hoverlabel={'namelength': -1})
+    layout1 = go.Layout(
+        title={
+            "text": "MKR approval in time (UTC)",
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=239,
+        margin={"b": 20, "l": 20, "r": 10, "t": 45, "pad": 10},
+        xaxis={"gridcolor": "#F0F0F0"},
+        yaxis={"gridcolor": "#F0F0F0"},
+        hovermode="x unified",
+        hoverlabel={"namelength": -1},
+    )
 
     figure1 = go.Figure(data=data1, layout=layout1)
 

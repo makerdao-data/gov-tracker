@@ -24,22 +24,24 @@ def yay_data_view(sf, yay):
         if sf.is_closed():
             sf = sf_connect()
         if sf.is_closed():
-            raise Exception('Reconnection failed')
+            raise Exception("Reconnection failed")
 
     except Exception as e:
         print(e)
-        return dict(status='failure', data='Database connection error')
+        return dict(status="failure", data="Database connection error")
 
     try:
 
         # SQL injection prevention
-        if not(len(yay) == 42 and yay[:2] == '0x'):
-            return dict(status='failure', data='Unknown yay')
+        if not (len(yay) == 42 and yay[:2] == "0x"):
+            return dict(status="failure", data="Unknown yay")
 
-        operations_query = f"""select v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index
-                              from {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
-                              where v.yay = '{yay}'
-                              order by v.order_index, v.operation; """
+        operations_query = f"""
+            SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index
+            FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
+            WHERE v.yay = '{yay}'
+            ORDER BY v.order_index, v.operation;
+            """
 
         operations = sf.execute(operations_query).fetchall()
 
@@ -54,18 +56,31 @@ def yay_data_view(sf, yay):
 
             approval += operation[4]
             if operation[2] not in voters:
-                voters[operation[2]] = [operation[6] or '', 0, 0]
+                voters[operation[2]] = [operation[6] or "", 0, 0]
 
             voters[operation[2]][2] += operation[4] or 0
             if voters[operation[2]][2] > voters[operation[2]][1]:
                 voters[operation[2]][1] = voters[operation[2]][2]
 
-            operation_row = [operation[0],
-                             link(operation[2], '/address/%s' % operation[2], operation[2]) if operation[2] else '',
-                             link(operation[3], 'https://ethtx.info/%s' % operation[1], '%s transaction' % operation[3], new_window=True) if operation[3] else '',
-                             "{0:,.2f}".format(operation[4] or 0), 'YES' if operation[5] else '', "{0:,.2f}".format(approval),
-                             'YES' if operation[7] == yay else 'NO',
-                             operation[8]]
+            operation_row = [
+                operation[0],
+                link(operation[2], f"/address/{operation[2]}", operation[2])
+                if operation[2]
+                else "",
+                link(
+                    operation[3],
+                    f"https://ethtx.info/{operation[1]}",
+                    f"{operation[3]} transaction",
+                    new_window=True,
+                )
+                if operation[3]
+                else "",
+                "{0:,.2f}".format(operation[4] or 0),
+                "YES" if operation[5] else "",
+                "{0:,.2f}".format(approval),
+                "YES" if operation[7] == yay else "NO",
+                operation[8],
+            ]
             yay_operations.append(operation_row)
 
             x.append(operation[0])
@@ -78,7 +93,7 @@ def yay_data_view(sf, yay):
         try:
             last_vote = max([operation[0] for operation in operations])
         except:
-            last_vote = ''
+            last_vote = ""
 
         approval = "{0:,.2f}".format(sum([operation[4] for operation in operations]))
 
@@ -86,39 +101,52 @@ def yay_data_view(sf, yay):
         voters = list(voters.items())
         voters.sort(key=lambda _x: _x[1][1], reverse=True)
 
-        top_voters_list = [[link(v[0], '/address/%s' % v[0]),
-                            "{0:,.2f}".format(v[1][1])] for v in voters[:9] if v[1][1]]
-        top_voters_list = [['Address', 'Top stake']] + top_voters_list
-        top_voters_table = html_table(top_voters_list, table_id='voters', widths=[None, '110px'], tooltip=False)
+        top_voters_list = [
+            [link(v[0], f"/address/{v[0]}"), "{0:,.2f}".format(v[1][1])]
+            for v in voters[:9]
+            if v[1][1]
+        ]
+        top_voters_list = [["Address", "Top stake"]] + top_voters_list
+        top_voters_table = html_table(
+            top_voters_list, table_id="voters", widths=[None, "110px"], tooltip=False
+        )
 
         plot = yay_graph(x, y, labels)
 
         # prepare output data
         operations_data = []
         for operation in yay_operations:
-            operations_data.append(dict(
-                TIME=operation[0].strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(operation[7]),
-                ADDRESS=operation[1],
-                OPERATION=operation[2],
-                VOTE=operation[3],
-                DECISIVE=operation[4],
-                APPROVAL=operation[5],
-                HAT=operation[6]
-            ))
+            operations_data.append(
+                dict(
+                    TIME=operation[0].strftime("%Y-%m-%d %H:%M:%S")
+                    + " "
+                    + str(operation[7]),
+                    ADDRESS=operation[1],
+                    OPERATION=operation[2],
+                    VOTE=operation[3],
+                    DECISIVE=operation[4],
+                    APPROVAL=operation[5],
+                    HAT=operation[6],
+                )
+            )
 
-        return dict(status='success',
-                    data=dict(since=since.strftime("%Y-%m-%d"),
-                              last_vote=last_vote.strftime("%Y-%m-%d %H:%M:%S"),
-                              num_voters=num_voters,
-                              approval=approval,
-                              top_voters=top_voters_table,
-                              operations=operations_data,
-                              operations_num=operations_num,
-                              plot=plot))
+        return dict(
+            status="success",
+            data=dict(
+                since=since.strftime("%Y-%m-%d"),
+                last_vote=last_vote.strftime("%Y-%m-%d %H:%M:%S"),
+                num_voters=num_voters,
+                approval=approval,
+                top_voters=top_voters_table,
+                operations=operations_data,
+                operations_num=operations_num,
+                plot=plot,
+            ),
+        )
 
     except Exception as e:
         print(e)
-        return dict(status='failure', data='Backend error: %s' % e)
+        return dict(status="failure", data="Backend error: %s" % e)
 
 
 # flask view for the yay page
@@ -129,17 +157,17 @@ def yay_page_view(sf, yay):
         if sf.is_closed():
             sf = sf_connect()
         if sf.is_closed():
-            raise Exception('Reconnection failed')
+            raise Exception("Reconnection failed")
 
     except Exception as e:
         print(e)
-        return dict(status='failure', data='Database connection error')
+        return dict(status="failure", data="Database connection error")
 
     try:
 
         # SQL injection prevention
-        if not (len(yay) == 42 and yay[:2] == '0x'):
-            return render_template('unknown.html', object_name='yay', object_value=yay)
+        if not (len(yay) == 42 and yay[:2] == "0x"):
+            return render_template("unknown.html", object_name="yay", object_value=yay)
 
         yay = yay.lower()
 
@@ -148,26 +176,22 @@ def yay_page_view(sf, yay):
 
         if titles:
             title = titles[1]
-        elif yay == '0x0000000000000000000000000000000000000000':
-            title = 'Activate DSChief v1.2'
+        elif yay == "0x0000000000000000000000000000000000000000":
+            title = "Activate DSChief v1.2"
         else:
             title = yay
-        
-        last_update = sf.execute(f"""
+
+        last_update = sf.execute(
+            f"""
             SELECT max(load_id)
             FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler
-        """).fetchone()
+        """
+        ).fetchone()
 
         return render_template(
-            'yay.html',
-            yay=yay,
-            title=title,
-            refresh=last_update[0].__str__()[:19]
+            "yay.html", yay=yay, title=title, refresh=last_update[0].__str__()[:19]
         )
 
     except Exception as e:
         print(e)
-        return render_template(
-            'error.html',
-            error_message=str(e)
-        )
+        return render_template("error.html", error_message=str(e))

@@ -18,22 +18,32 @@ import plotly.graph_objs as go
 def proxy_graph(x, y, labels):
 
     data1 = [
-            go.Scatter(
-                x=x,
-                y=y,
-                name='Vote Proxy actions',
-                line={'color': '#1aab9b'},
-                mode="markers",
-                text=labels,
-                yaxis="y"
-            )
-        ]
+        go.Scatter(
+            x=x,
+            y=y,
+            name="Vote Proxy actions",
+            line={"color": "#1aab9b"},
+            mode="markers",
+            text=labels,
+            yaxis="y",
+        )
+    ]
 
-    layout1 = go.Layout(title={'text': "Vote Proxy actions in time (UTC)", 'x': 0.5, 'xanchor': 'center', 'yanchor': 'top'},
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        height=275, margin={"b": 20, "l": 20, "r": 10, "t": 45, "pad": 10},
-                        xaxis={'gridcolor': '#F0F0F0'}, yaxis={'gridcolor': '#F0F0F0'},
-                        hovermode="x unified", hoverlabel={'namelength': -1})
+    layout1 = go.Layout(
+        title={
+            "text": "Vote Proxy actions in time (UTC)",
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=275,
+        margin={"b": 20, "l": 20, "r": 10, "t": 45, "pad": 10},
+        xaxis={"gridcolor": "#F0F0F0"},
+        yaxis={"gridcolor": "#F0F0F0"},
+        hovermode="x unified",
+        hoverlabel={"namelength": -1},
+    )
 
     figure1 = go.Figure(data=data1, layout=layout1)
 

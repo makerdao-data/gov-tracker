@@ -26,11 +26,8 @@ def async_queries(sf, all_queries):
 
     started_queries = []
     for i in all_queries:
-        sf.execute(i['query'])
-        started_queries.append(dict(
-            qid=sf.sfqid,
-            id=i['id']
-        ))
+        sf.execute(i["query"])
+        started_queries.append(dict(qid=sf.sfqid, id=i["id"]))
 
     all_results = {}
     limit = len(started_queries)
@@ -40,18 +37,20 @@ def async_queries(sf, all_queries):
 
         for i in started_queries:
 
-            if i['id'] not in all_results.keys():
+            if i["id"] not in all_results.keys():
 
                 try:
-                    check_results = sf.execute("""
+                    check_results = sf.execute(
+                        f"""
                         SELECT *
-                        FROM table(result_scan('%s'))
-                        """ % i['qid'])
+                        FROM table(result_scan('{i["qid"]}'))
+                        """
+                    )
 
                     if isinstance(check_results, SnowflakeCursor):
                         df = check_results.fetch_pandas_all()
                         result = df.where(pd.notnull(df), None).values.tolist()
-                        all_results[i['id']] = result
+                        all_results[i["id"]] = result
 
                 except Exception as e:
                     print(str(e))
