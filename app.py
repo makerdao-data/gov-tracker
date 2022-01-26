@@ -20,6 +20,7 @@ from views.address_views import address_page_view, address_data_view
 from views.yay_views import yay_page_view, yay_data_view
 from views.poll_views import poll_page_view, poll_data_view
 from views.proxy_views import proxy_page_view, proxy_data_view
+from views.protocol_parameters_views import parameters_page_view, parameters_data_view
 from connectors.sf import sf, sf_disconnect
 
 
@@ -53,6 +54,11 @@ def poll_page(poll_id):
     return poll_page_view(sf, poll_id)
 
 
+@app.route("/protocol_parameters")
+def parameters_page():
+    return parameters_page_view(sf)
+
+
 # DATA endpoints -------------------------------------------
 @app.route("/data/main", methods=["GET"])
 def get_main_page_data():
@@ -82,6 +88,13 @@ def get_yay_page_data(yay):
 def get_poll_page_data(poll):
     dataset = poll_data_view(sf, poll)
     return jsonify(dataset)
+
+
+@app.route("/data/protocol_parameters", methods=["GET"])
+def get_parameters_page_data():
+    dataset = parameters_data_view(sf)
+    return jsonify(dataset)
+
 
 
 # cleanup tasks
