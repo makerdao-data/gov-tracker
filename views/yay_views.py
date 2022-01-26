@@ -37,11 +37,13 @@ def yay_data_view(sf, yay):
             return dict(status="failure", data="Unknown yay")
 
         operations_query = f"""
-            SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index
-            FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
-            WHERE v.yay = '{yay}'
-            ORDER BY v.order_index, v.operation;
-            """
+        SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index, d.name
+        FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
+        LEFT JOIN delegates.public.delegates d
+        on v.voter = d.vote_delegate
+        WHERE v.yay = '{yay}'
+        ORDER BY v.order_index, v.operation;
+        """
 
         operations = sf.execute(operations_query).fetchall()
 
@@ -56,7 +58,7 @@ def yay_data_view(sf, yay):
 
             approval += operation[4]
             if operation[2] not in voters:
-                voters[operation[2]] = [operation[6] or "", 0, 0]
+                voters[operation[2]] = [operation[6] or "", 0, 0, operation[9]]
 
             voters[operation[2]][2] += operation[4] or 0
             if voters[operation[2]][2] > voters[operation[2]][1]:
@@ -64,7 +66,7 @@ def yay_data_view(sf, yay):
 
             operation_row = [
                 operation[0],
-                link(operation[2], f"/address/{operation[2]}", operation[2])
+                link(operation[9] if operation[9] else operation[2], f"/address/{operation[2]}", operation[9] if operation[9] else operation[2])
                 if operation[2]
                 else "",
                 link(
@@ -102,7 +104,7 @@ def yay_data_view(sf, yay):
         voters.sort(key=lambda _x: _x[1][1], reverse=True)
 
         top_voters_list = [
-            [link(v[0], f"/address/{v[0]}"), "{0:,.2f}".format(v[1][1])]
+            [link(v[1][3] if v[1][3] else v[0], f"/address/{v[0]}", v[0]), "{0:,.2f}".format(v[1][1])]
             for v in voters[:9]
             if v[1][1]
         ]

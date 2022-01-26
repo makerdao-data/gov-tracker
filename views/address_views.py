@@ -187,11 +187,19 @@ def address_page_view(sf, address):
 
         address_data = sf.execute(
             f"""
-            SELECT v.voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
-            FROM {os.getenv("MCDGOV_DB", "mcd")}.public.current_voters v  
-            WHERE lower(v.voter) = '{address}';
+            select o.voter, '', o.stake, o.yay1, o.yay2, o.yay3, o.yay4, o.yay5, o.since, o.last_voting, d.name
+            FROM (SELECT distinct case when p.from_address is null then v.voter else p.from_address end voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
+            FROM mcd.public.current_voters v
+            LEFT JOIN mcd.internal.vote_proxies p
+            on v.voter = p.proxy
+            ORDER BY v.stake desc) o
+            LEFT JOIN delegates.public.delegates d
+            on o.voter = d.vote_delegate
+            WHERE lower(o.voter) = '{address}';
             """
         ).fetchall()
+
+            
 
         if len(address_data) != 1:
             return render_template(
@@ -224,7 +232,7 @@ def address_page_view(sf, address):
 
         return render_template(
             "address.html",
-            address=address_data[0],
+            address=address_data[10] if address_data[10] else address_data[0],
             stake="{0:,.2f}".format(address_data[2]) if address_data[2] else "0.00",
             since=address_data[8].strftime("%Y-%m-%d") if address_data[8] else "",
             last_vote=address_data[9].strftime("%Y-%m-%d %H:%M:%S")
@@ -232,6 +240,7 @@ def address_page_view(sf, address):
             else "",
             refresh=last_update[0].__str__()[:19],
             vote_proxy=vote_proxy,
+            og_address=address_data[0],
         )
 
     except Exception as e:

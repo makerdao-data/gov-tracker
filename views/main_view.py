@@ -35,9 +35,16 @@ def main_page_data(sf):
     try:
 
         voters_query = f"""
-            SELECT distinct v.voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
-            FROM {os.getenv("MCDGOV_DB", "mcd")}.public.current_voters v  
-            ORDER BY v.stake desc; """
+            select o.voter, '', o.stake, o.yay1, o.yay2, o.yay3, o.yay4, o.yay5, o.since, o.last_voting, d.name
+            FROM (SELECT distinct case when p.from_address is null then v.voter else p.from_address end voter, '', v.stake, v.yay1, v.yay2, v.yay3, v.yay4, v.yay5, v.since, v.last_voting
+            FROM mcd.public.current_voters v
+            LEFT JOIN mcd.internal.vote_proxies p
+            on v.voter = p.proxy
+            ORDER BY v.stake desc) o
+            LEFT JOIN delegates.public.delegates d
+            on o.voter = d.vote_delegate;
+        """
+
 
         yays_query = f"""
             SELECT yay, option, first_voting, approval, voters, first_voting, type
@@ -106,9 +113,10 @@ def main_page_data(sf):
             if not last_vote or v[9] > last_vote:
                 last_vote = v[9]
 
+        
         voters_list = [
             [
-                link(v[0], f"/address/{ v[0]}", v[0]),
+                link(v[10] if v[10] else v[0], f"/address/{ v[0]}", v[10] if v[10] else v[0]),
                 "{0:,.2f}".format(v[2] or 0),
                 "<br>".join(
                     [
