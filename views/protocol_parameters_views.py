@@ -46,8 +46,8 @@ def parameters_data_view(sf):
                 dict(
                     BLOCK=block,
                     TIMESTAMP=timestamp,
-                    TX_HASH=link(tx_hash, f"https://ethtx.info/{tx_hash}", f"{tx_hash} transaction", new_window=True),
-                    SPELL=spell,
+                    TX_HASH=link(tx_hash, f"https://ethtx.info/{tx_hash}", f"transaction overview", new_window=True),
+                    SPELL=link(spell, f"https://etherscan.io/address/{spell}", f"spell address", new_window=True),
                     PARAMETER=parameter,
                     ILK=ilk,
                     CURRENT_VALUE=current_value,
