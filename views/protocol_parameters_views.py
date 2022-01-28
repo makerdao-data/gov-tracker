@@ -41,7 +41,7 @@ def parameters_data_view(sf):
 
         # prepare output data
         parameters_data = []
-        for block, timestamp, tx_hash, spell, parameter, ilk, current_value, next_value in parameters:
+        for block, timestamp, tx_hash, spell, parameter, ilk, from_value, to_value in parameters:
             parameters_data.append(
                 dict(
                     BLOCK=block,
@@ -50,8 +50,8 @@ def parameters_data_view(sf):
                     SPELL=link(spell, f"https://etherscan.io/address/{spell}", f"spell address", new_window=True),
                     PARAMETER=parameter,
                     ILK=ilk,
-                    CURRENT_VALUE=current_value,
-                    NEXT_VALUE=next_value
+                    FROM_VALUE=from_value,
+                    TO_VALUE=to_value
                 )
             )
 
