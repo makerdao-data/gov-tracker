@@ -32,8 +32,8 @@ def parameters_data_view(sf):
     try:
 
         parameters_query = f"""
-        SELECT *
-        FROM token_flow.dicu.parameters
+        SELECT block, timestamp, tx_hash, source, parameter, ilk, from_value, to_value
+        FROM maker.public.parameters
         ORDER BY block;
         """
 
