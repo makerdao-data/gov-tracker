@@ -124,6 +124,14 @@ span.expose a {
     margin: 0 auto;
 }
 
+.parameters_dashboard {
+    display: grid;
+    grid-template-rows: 130px calc(100vh - 185px) 45px;
+    max-height: 100%;
+    max-width: 2300px;
+    margin: 0 auto;
+}
+
 .left-box, .right-box, .center-box {
     display: block;
     overflow: auto;

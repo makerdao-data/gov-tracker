@@ -14,6 +14,19 @@
 
 from flask import Flask, request, jsonify
 import atexit
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+import os
+import sqlalchemy
+from datetime import datetime
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.dialects import registry
+import csv
+from io import StringIO
+from werkzeug.wrappers import Response
+
 
 from views.main_view import main_page_view, main_page_data
 from views.address_views import address_page_view, address_data_view
@@ -24,8 +37,80 @@ from views.protocol_parameters_views import parameters_page_view, parameters_dat
 from connectors.sf import sf, sf_disconnect
 
 
+registry.register("snowflake", "snowflake.sqlalchemy", "dialect")
+connect_url = sqlalchemy.engine.url.URL(
+    "snowflake",
+    username=os.getenv("SNOWFLAKE_USER"),
+    password=os.getenv("SNOWFLAKE_PASS"),
+    host=os.getenv("SNOWFLAKE_ACCOUNT"),
+    query={
+        "database": os.getenv("SNOWFLAKE_DATABASE"),
+        "role": os.getenv("SNOWFLAKE_ROLE"),
+        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+    },
+)
+
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
+
+app.config['SQLALCHEMY_DATABASE_URI'] = connect_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+db.session.client_session_keep_alive = True
+engine = create_engine(connect_url, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+Base.metadata.create_all(bind=engine)
+
+class ParameterEvent(db.Model):
+
+    __tablename__ = 'parameters'
+
+    block = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime)
+    tx_hash = db.Column(db.String)
+    source = db.Column(db.String)
+    parameter = db.Column(db.String)
+    ilk = db.Column(db.String)
+    from_value = db.Column(db.Float)
+    to_value = db.Column(db.Float)
+    
+    def to_dict(self):
+        return {
+            'block': self.block,
+            'timestamp': self.timestamp.__str__()[:19], 
+            'tx_hash': self.tx_hash,
+            'source': self.source,
+            'parameter': self.parameter,
+            'ilk': self.ilk,
+            'from_value': self.from_value,
+            'to_value': self.to_value
+        }
+
+    def to_list(self):
+        return [
+            self.block,
+            self.timestamp.__str__()[:19], 
+            self.tx_hash,
+            self.source,
+            self.parameter,
+            self.ilk,
+            self.from_value,
+            self.to_value
+        ]
+    
+    __table_args__ = {"schema": "maker.public"}
+    __mapper_args__ = {
+        "primary_key": [
+            block,
+            source,
+            parameter,
+            ilk,
+            from_value,
+            to_value
+        ]
+    }
 
 
 # HTML endpoints -------------------------------------------
@@ -90,11 +175,127 @@ def get_poll_page_data(poll):
     return jsonify(dataset)
 
 
-@app.route("/data/protocol_parameters", methods=["GET"])
-def get_parameters_page_data():
-    dataset = parameters_data_view(sf)
-    return jsonify(dataset)
+# @app.route("/data/protocol_parameters", methods=["GET"])
+# def get_parameters_page_data():
+#     dataset = parameters_data_view(sf)
+#     return jsonify(dataset)
 
+@app.route("/data/protocol_parameters/<s>/<e>", methods=["GET"])
+def get_parameters_page_data(s, e):
+
+    db = SessionLocal()
+
+    s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
+    e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+
+    query = ParameterEvent.query
+    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
+
+    spell = request.args.get('search_spell')
+    if spell:
+        query = query.filter(
+            ParameterEvent.source == str(spell)
+        )
+
+    parameter = request.args.get('search_parameter')
+    if parameter:
+        query = query.filter(
+            ParameterEvent.parameter == str(parameter)
+        )
+    
+    ilk = request.args.get('search_ilk')
+    if ilk:
+        query = query.filter(
+            ParameterEvent.ilk == str(ilk)
+        )
+
+    total_filtered = query.count()
+
+    # sorting
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name not in ['block', 'timestamp', 'tx_hash', 'source', 'parameter', 'ilk', 'from_value', 'to_value']:
+            col_name = 'block'
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(ParameterEvent, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+
+    # response
+    return {
+        'data': [record.to_dict() for record in query],
+        'recordsFiltered': total_filtered,
+        'recordsTotal': ParameterEvent.query.count(),
+        'draw': request.args.get('draw', type=int),
+    }
+
+
+@app.route("/data/parameters_history_export/<s>/<e>", methods=["GET"])
+def parameters_history_export(s, e):
+
+    db = SessionLocal()
+
+    s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
+    e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+
+    query = ParameterEvent.query
+    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
+
+    spell = request.args.get('search_spell')
+    if spell:
+        query = query.filter(
+            ParameterEvent.source == str(spell)
+        )
+
+    parameter = request.args.get('search_parameter')
+    if parameter:
+        query = query.filter(
+            ParameterEvent.parameter == str(parameter)
+        )
+    
+    ilk = request.args.get('search_ilk')
+    if ilk:
+        query = query.filter(
+            ParameterEvent.ilk == str(ilk)
+        )
+
+    def generate():
+
+        data = StringIO()
+        w = csv.writer(data)
+
+        # write header
+        w.writerow(('block', 'timestamp', 'tx_hash', 'source', 'parameter', 'ilk', 'from_value', 'to_value'))
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+
+        # write each log item
+        for item in query:
+            w.writerow(tuple(item.to_list()))
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+
+    # stream the response as the data is generated
+    response = Response(generate(), mimetype='text/csv')
+    # add a filename
+    response.headers.set("Content-Disposition", "attachment", filename="export.csv")
+    return response
 
 
 # cleanup tasks

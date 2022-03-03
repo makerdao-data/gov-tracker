@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     {% include 'head.html' %}
+    <head>
+        {% include 'head.html' %}
+    </head>
 </head>
 <body>
-    <div class="dashboard">
+    <div class="parameters_dashboard">
 
         <div class="header shadow">
             <a href="/" class="logo-container"><img alt="logo" class="logo" src="{{ url_for('static', filename='logo.png') }}"></a>
@@ -18,10 +20,54 @@
 
 
             <div class="right_panel shadow">
-                <div id="table_container" style="visibility: hidden;">
-                    <div><h3 style="margin-top: 2px; ">Protocol parameters history</h3></div>
+                <div id="table_container">
+                    <div><h3 style="margin-top: 10px; margin-left: 5px;">Protocol parameters history</h3></div>
+
+
+                    <div style="padding-top: 10px; padding-bottom: 15px;">
+
+                        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 15px 5px 15px; border: 1px solid #ccc; display: inline-block; vertical-align: middle;">
+                            <i class="fa fa-calendar"></i>&nbsp;
+                            <span></span> <i class="fa fa-caret-down"></i>
+                        </div>
+                        
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <button id='export' class="dt-button buttons-csv buttons-html5">Export to CSV</button>
+                        </div>
+
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <div>
+                                Spell:
+                                <input id="search_spell" name="search_spell" class="dataTables_filter" style="display: inline-block; vertical-align: middle; padding: 5px;" type="text" value="">
+                            </div>
+
+                        </div>
+
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <div>
+                                Parameter:
+                                <input id="search_parameter" name="search_parameter" class="dataTables_filter" style="display: inline-block; vertical-align: middle; padding: 5px;" type="text" value="">
+                            </div>
+
+                        </div>
+
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <div>
+                                Ilk:
+                                <input id="search_ilk" name="search_ilk" class="dataTables_filter" style="display: inline-block; vertical-align: middle; padding: 5px;" type="text" value="">
+                            </div>
+
+                        </div>
+
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <button id="search_start" class="simple-button" type="submit"><i class="fa fa-search"></i></button>
+                        </div>
+
+                    </div>
+
+
                     <div class="right-box">
-                        <table id="sorted-table" class="display nowrap" style="width:100%">
+                        <table id="sorted-table" class="simple-table dataTable no-footer" style="width:99%">
                             <thead>
                                 <tr>
                                     <th>Block</th>
@@ -37,13 +83,18 @@
                         </table>
                     </div>
                 </div>
-                <div id='cover' class="loader" style="margin-top: 20%; margin-left: auto; margin-right: auto;"></div>
             </div>
 
         <div class="footer shadow">
             {% include 'footer.html' %}
         </div>
     </div>
+
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='daterangepicker.css') }}" />
 
     <script>
 
@@ -53,85 +104,212 @@
             const u = new URL(url);
             const yay = (u.pathname.substring(u.pathname.lastIndexOf('/') + 1));
 
-            $.ajax({
-                url: "/data/protocol_parameters",
-                method: 'get',
-                dataType: 'json',
-                contentType: 'application/json',
-                success: function (msg) {
+            $(function() {
 
-                    if (msg.status === "success") {
+                var start = moment().subtract(7, 'days');
+                var end = moment().subtract(0, 'days');
 
-                        const data = msg.data
-
-                        $('#sorted-table').DataTable( {
-                            data: data['parameters'],
-                            autoWidth: false,
-                            columns: [
-                                { data: "BLOCK", width: '120px'  },
-                                { data: "TIMESTAMP"  },
-                                { data: "TX_HASH" },
-                                { data: "SPELL" },
-                                { data: "PARAMETER", width: '100px' },
-                                { data: "ILK", width: '150px' },
-                                { data: "FROM_VALUE", width: '180px' },
-                                { data: "TO_VALUE", width: '180px' }
-                            ],
-                            order: [[ 0, "desc" ]],
-                            lengthMenu: [[50, 100, 250 -1], [50, 100, 250, "All"]],
-                            pageLength: 50,
-                            dom: 'lBfrtip',
-                            buttons: [ {
-                                extend: 'csv',
-                                text: 'Export to CSV',
-                                filename: 'MKR_protocol_parameters',
-                                exportOptions: {
-                                    modifier: {
-                                        search: 'none'
-                                    }
-                                }
-                            }],
-                            initComplete: function() {
-                                if (this.api().page.info().pages <= 1) {
-                                    $('#sorted-table_length').hide();
-                                    $('#sorted-table_paginate').hide();
-                                    $('#sorted-table_info').hide();
-                                }
-                                if (this.api().page.info().pages === 0) {
-                                    $('#sorted-table_filter').hide();
-                                }
-                            }
-                        });
-
-                        $( "#sorted-table" ).removeClass();
-                        $( "#sorted-table" ).addClass("simple-table");
-                        $( "#sorted-table" ).addClass("dataTable");
-                        $( "#sorted-table" ).addClass("no-footer");
-                        $( "#cover" ).css("display", "none");
-                        $( "#table_container" ).css("visibility", "visible");
-
-                        $( "#data_html" ).css("display", "contents");
-
-                     } else {
-                        const error_message = `
-                        <div style="padding: 10px; margin-bottom: 50px">
-                            <h2>Problem while fetching data :(<br>
-                            Please try again</h2>
-                        </div>`;
-                        $( "#data_html" ).html(error_message);
-                        $( "#table_container" ).html(error_message);
-                    }
-                },
-                error: function (ex) {
-                    const error_message = `
-                    <div style="padding-left: 50px; margin-top: 50px; margin-bottom: 50px">
-                        <h2>Something went wrong :(<br>
-                        Try again later</h2>
-                    </div>`;
-                    $( "#dashboard" ).html(error_message);
+                function cb(start, end) {
+                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 }
+
+                $('#reportrange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    }
+                }, cb);
+
+                cb(start, end);
+
             });
-        });
+
+            $("#export").on("click",function(){
+
+                    const saveData = (function () {
+                        const a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+                        return function (data, fileName) {
+                            const blob = new Blob([data], {type: "octet/stream"}),
+                                url = window.URL.createObjectURL(blob);
+                            a.href = url;
+                            a.download = fileName;
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                        };
+                    }());
+
+                    var req = $.ajax({
+                        url: '/data/parameters_history_export/' + $('#reportrange').data('daterangepicker').startDate + '/' + $('#reportrange').data('daterangepicker').endDate,
+                        data: {
+                            "search_spell": $("#search_spell").val(),
+                            "search_parameter": $("#search_parameter").val(),
+                            "search_ilk": $("#search_ilk").val()
+                        }
+                    });
+
+                    alert("Downloading in progess");
+
+                    req.done(function() {
+                        
+                        saveData(req.responseText, 'export.csv');
+
+                    });
+                
+            });
+
+            function ld() {
+                    
+                    $('#sorted-table').DataTable({
+                    
+                        ajax: {
+                            url: '/data/protocol_parameters/' + $('#reportrange').data('daterangepicker').startDate + '/' + $('#reportrange').data('daterangepicker').endDate,
+                            data: {
+                                "search_spell": $("#search_spell").val(),
+                                "search_parameter": $("#search_parameter").val(),
+                                "search_ilk": $("#search_ilk").val()
+                            },
+                        },
+                        serverSide: true,
+                        autoWidth: false,
+                        searching: false,
+                        columns: [
+                            { data: "block" },
+                            { 
+                                data: "timestamp",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return moment(data).format("YYYY-MM-DD HH:mm:SS");
+                                },
+                            },
+                            { data: "tx_hash" },
+                            { data: "source" },
+                            { data: "parameter" },
+                            { data: "ilk" },
+                            { data: "from_value" },
+                            { data: "to_value" }
+                        ],
+                        order: [[ 0, "desc" ]],
+                        lengthMenu: [[50, 100, 250 -1], [50, 100, 250, "All"]],
+                        pageLength: 50,
+                        dom: 'lBfrtip',
+                    })
+                }
+                
+                $(function() {
+                    setTimeout(ld, 1000);
+                });
+                
+                $('#reportrange').on('apply.daterangepicker', function(){
+                
+                    $('#sorted-table').DataTable().clear();
+                    $('#sorted-table').DataTable().destroy();
+                    $('#sorted-table').DataTable({
+                
+                        ajax: {
+                            url: '/data/protocol_parameters/' + $('#reportrange').data('daterangepicker').startDate + '/' + $('#reportrange').data('daterangepicker').endDate,
+                            data: {
+                                "search_spell": $("#search_spell").val(),
+                                "search_parameter": $("#search_parameter").val(),
+                                "search_ilk": $("#search_ilk").val()
+                            },
+                        },
+                        serverSide: true,
+                        autoWidth: false,
+                        searching: false,
+                        columns: [
+                            { data: "block" },
+                            { 
+                                data: "timestamp",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return moment(data).format("YYYY-MM-DD HH:mm:SS");
+                                },
+                            },
+                            { data: "tx_hash" },
+                            { data: "source" },
+                            { data: "parameter" },
+                            { data: "ilk" },
+                            { data: "from_value" },
+                            { data: "to_value" }
+                        ],
+                        order: [[ 0, "desc" ]],
+                        lengthMenu: [[50, 100, 250 -1], [50, 100, 250, "All"]],
+                        pageLength: 50,
+                        dom: 'lBfrtip',
+                    });
+                });
+                
+                $("#search_start").on("click",function(){
+                
+                    $('#sorted-table').DataTable().clear();
+                    $('#sorted-table').DataTable().destroy();
+                    $('#sorted-table').DataTable({
+                
+                        ajax: {
+                            url: '/data/protocol_parameters/' + $('#reportrange').data('daterangepicker').startDate + '/' + $('#reportrange').data('daterangepicker').endDate,
+                            data: {
+                                "search_spell": $("#search_spell").val(),
+                                "search_parameter": $("#search_parameter").val(),
+                                "search_ilk": $("#search_ilk").val()
+                            },
+                        },
+                        serverSide: true,
+                        autoWidth: false,
+                        searching: false,
+                        columns: [
+                            { data: "block" },
+                            { 
+                                data: "timestamp",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return moment(data).format("YYYY-MM-DD HH:mm:SS");
+                                },
+                            },
+                            { data: "tx_hash" },
+                            { data: "source" },
+                            { data: "parameter" },
+                            { data: "ilk" },
+                            { data: "from_value" },
+                            { data: "to_value" }
+                        ],
+                        order: [[ 0, "desc" ]],
+                        lengthMenu: [[50, 100, 250 -1], [50, 100, 250, "All"]],
+                        pageLength: 50,
+                        dom: 'lBfrtip',
+                    });
+                
+                });
+            });
+                
+                var ilk_input = document.getElementById("search_ilk");
+                ilk_input.addEventListener("keyup", function(event) {
+                    if (event.keyCode === 13) {
+                    event.preventDefault();
+                    document.getElementById("search_start").click();
+                }
+                });
+                
+                var vault_input = document.getElementById("search_vault");
+                vault_input.addEventListener("keyup", function(event) {
+                    if (event.keyCode === 13) {
+                    event.preventDefault();
+                    document.getElementById("search_start").click();
+                }
+                });
 
     </script>
 
