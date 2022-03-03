@@ -72,3 +72,6 @@ web3==5.13.0
 websockets==8.1.0
 Werkzeug==1.0.1
 WTForms==2.3.3
+flask_sqlalchemy
+sqlalchemy
+snowflake-sqlalchemy
