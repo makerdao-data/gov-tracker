@@ -9,13 +9,7 @@
     <div class="parameters_dashboard">
 
         <div class="header shadow">
-            <a href="/" class="logo-container"><img alt="logo" class="logo" src="{{ url_for('static', filename='logo.png') }}"></a>
-            <div class="title-form-container">
-                <div class="title-container">
-                    <div class="main_title">MCD Governance Tracker</div>
-                    <div class="refresh">Protocol parameters</div>
-                </div>
-            </div>
+            {% include 'header.html' %}
         </div>
 
 
@@ -191,8 +185,22 @@
                                     return moment(data).format("YYYY-MM-DD HH:mm:SS");
                                 },
                             },
-                            { data: "tx_hash" },
-                            { data: "source" },
+                            { data: "tx_hash",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://ethtx.info/" + data + "\'>" + data + "</a>";
+                                },
+                            },
+                            { data: "source",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://etherscan.io/address/" + data + "\'>" + data + "</a>";
+                                },
+                            },
                             { data: "parameter" },
                             { data: "ilk" },
                             { data: "from_value" },
@@ -237,8 +245,22 @@
                                     return moment(data).format("YYYY-MM-DD HH:mm:SS");
                                 },
                             },
-                            { data: "tx_hash" },
-                            { data: "source" },
+                            { data: "tx_hash",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://ethtx.info/" + data + "\'>" + data + "</a>";
+                                },
+                            },
+                            { data: "source",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://etherscan.io/address/" + data + "\'>" + data + "</a>";
+                                },
+                            },
                             { data: "parameter" },
                             { data: "ilk" },
                             { data: "from_value" },
@@ -279,8 +301,22 @@
                                     return moment(data).format("YYYY-MM-DD HH:mm:SS");
                                 },
                             },
-                            { data: "tx_hash" },
-                            { data: "source" },
+                            { data: "tx_hash",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://ethtx.info/" + data + "\'>" + data + "</a>";
+                                },
+                            },
+                            { data: "source",
+                                render: function(data, type, row) {
+                                    if(type === "sort" || type === "type"){
+                                        return data;
+                                        }
+                                    return "<a target=\'_blank\' href=\'https://etherscan.io/address/" + data + "\'>" + data + "</a>";
+                                },
+                            },
                             { data: "parameter" },
                             { data: "ilk" },
                             { data: "from_value" },
@@ -293,24 +329,39 @@
                     });
                 
                 });
+
             });
-                
+
+            setTimeout(() => {
                 var ilk_input = document.getElementById("search_ilk");
                 ilk_input.addEventListener("keyup", function(event) {
                     if (event.keyCode === 13) {
-                    event.preventDefault();
-                    document.getElementById("search_start").click();
-                }
+                        event.preventDefault();
+                        document.getElementById("search_start").click();
+                    }
                 });
-                
-                var vault_input = document.getElementById("search_vault");
+            }, 1000);
+            
+            setTimeout(() => {
+                var vault_input = document.getElementById("search_spell");
                 vault_input.addEventListener("keyup", function(event) {
                     if (event.keyCode === 13) {
-                    event.preventDefault();
-                    document.getElementById("search_start").click();
-                }
+                        event.preventDefault();
+                        document.getElementById("search_start").click();
+                    }
                 });
+            }, 1000);
 
+            setTimeout(() => {
+                var vault_input = document.getElementById("search_parameter");
+                vault_input.addEventListener("keyup", function(event) {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById("search_start").click();
+                    }
+                });
+            }, 1000);
+            
     </script>
 
 </body>

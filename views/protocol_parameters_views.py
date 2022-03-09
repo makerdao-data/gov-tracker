@@ -81,11 +81,16 @@ def parameters_page_view(sf):
         print(e)
         return dict(status="failure", data="Database connection error")
 
+    last_update = sf.execute(
+        f"""
+        SELECT max(load_id)
+        FROM {os.getenv("MCDGOV_DB", "mcd")}.internal.votes_scheduler;
+    """
+    ).fetchone()
+
     try:
 
-        return render_template(
-            "parameters.html"
-        )
+        return render_template("parameters.html", refresh=last_update[0].__str__()[:19])
 
     except Exception as e:
         print(e)
