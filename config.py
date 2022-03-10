@@ -12,7 +12,7 @@
 
 import os
 from dotenv import load_dotenv
-
+import sqlalchemy
 
 PROJECT_ROOT = os.path.realpath(os.path.dirname(__file__))
 
@@ -26,4 +26,17 @@ SNOWFLAKE_CONNECTION = dict(
     password=os.environ.get("SNOWFLAKE_PASS"),
     role=os.environ.get("SNOWFLAKE_ROLE"),
     warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
+)
+
+
+connect_url = sqlalchemy.engine.url.URL(
+    "snowflake",
+    username=os.getenv("SNOWFLAKE_USER"),
+    password=os.getenv("SNOWFLAKE_PASS"),
+    host=os.getenv("SNOWFLAKE_ACCOUNT"),
+    query={
+        "database": os.getenv("SNOWFLAKE_DATABASE"),
+        "role": os.getenv("SNOWFLAKE_ROLE"),
+        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+    },
 )
