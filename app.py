@@ -44,6 +44,7 @@ app.config["JSON_SORT_KEYS"] = False
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database import Base
+from sqlalchemy.orm import Session
 
 # Connect to Database and create database session
 from database import engine
@@ -127,58 +128,62 @@ def get_parameters_page_data(s, e):
     s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
     e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
 
-    query = session.query(ParameterEvent)
-    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
+    with Session(engine) as session:
 
-    spell = request.args.get('search_spell')
-    if spell:
-        query = query.filter(
-            ParameterEvent.source == str(spell)
-        )
+        query = session.query(ParameterEvent)
+        query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
 
-    parameter = request.args.get('search_parameter')
-    if parameter:
-        query = query.filter(
-            ParameterEvent.parameter.like(f'%{str(parameter)}%')
-        )
-    
-    ilk = request.args.get('search_ilk')
-    if ilk:
-        query = query.filter(
-            ParameterEvent.ilk.like(f'%{str(ilk)}%')
-        )
+        spell = request.args.get('search_spell')
+        if spell:
+            query = query.filter(
+                ParameterEvent.source == str(spell)
+            )
 
-    total_filtered = query.count()
+        parameter = request.args.get('search_parameter')
+        if parameter:
+            query = query.filter(
+                ParameterEvent.parameter.like(f'%{str(parameter)}%')
+            )
+        
+        ilk = request.args.get('search_ilk')
+        if ilk:
+            query = query.filter(
+                ParameterEvent.ilk.like(f'%{str(ilk)}%')
+            )
 
-    # sorting
-    order = []
-    i = 0
-    while True:
-        col_index = request.args.get(f'order[{i}][column]')
-        if col_index is None:
-            break
-        col_name = request.args.get(f'columns[{col_index}][data]')
-        if col_name not in ['block', 'timestamp', 'tx_hash', 'source', 'parameter', 'ilk', 'from_value', 'to_value']:
-            col_name = 'block'
-        descending = request.args.get(f'order[{i}][dir]') == 'desc'
-        col = getattr(ParameterEvent, col_name)
-        if descending:
-            col = col.desc()
-        order.append(col)
-        i += 1
-    if order:
-        query = query.order_by(*order)
+        total_filtered = query.count()
 
-    # pagination
-    start = request.args.get('start', type=int)
-    length = request.args.get('length', type=int)
-    query = query.offset(start).limit(length)
+        # sorting
+        order = []
+        i = 0
+        while True:
+            col_index = request.args.get(f'order[{i}][column]')
+            if col_index is None:
+                break
+            col_name = request.args.get(f'columns[{col_index}][data]')
+            if col_name not in ['block', 'timestamp', 'tx_hash', 'source', 'parameter', 'ilk', 'from_value', 'to_value']:
+                col_name = 'block'
+            descending = request.args.get(f'order[{i}][dir]') == 'desc'
+            col = getattr(ParameterEvent, col_name)
+            if descending:
+                col = col.desc()
+            order.append(col)
+            i += 1
+        if order:
+            query = query.order_by(*order)
+
+        # pagination
+        start = request.args.get('start', type=int)
+        length = request.args.get('length', type=int)
+        query = query.offset(start).limit(length)
+
+        records_total = session.query(ParameterEvent).count()
 
     # response
     return {
         'data': [record.to_dict() for record in query],
         'recordsFiltered': total_filtered,
-        'recordsTotal': session.query(ParameterEvent).count(),
+        'recordsTotal': records_total,
         'draw': request.args.get('draw', type=int),
     }
 
@@ -189,26 +194,28 @@ def parameters_history_export(s, e):
     s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
     e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
 
-    query = session.query(ParameterEvent)
-    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
+    with Session(engine) as session:
 
-    spell = request.args.get('search_spell')
-    if spell:
-        query = query.filter(
-            ParameterEvent.source == str(spell)
-        )
+        query = session.query(ParameterEvent)
+        query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
 
-    parameter = request.args.get('search_parameter')
-    if parameter:
-        query = query.filter(
-            ParameterEvent.parameter == str(parameter)
-        )
-    
-    ilk = request.args.get('search_ilk')
-    if ilk:
-        query = query.filter(
-            ParameterEvent.ilk == str(ilk)
-        )
+        spell = request.args.get('search_spell')
+        if spell:
+            query = query.filter(
+                ParameterEvent.source == str(spell)
+            )
+
+        parameter = request.args.get('search_parameter')
+        if parameter:
+            query = query.filter(
+                ParameterEvent.parameter == str(parameter)
+            )
+        
+        ilk = request.args.get('search_ilk')
+        if ilk:
+            query = query.filter(
+                ParameterEvent.ilk == str(ilk)
+            )
 
     def generate():
 
