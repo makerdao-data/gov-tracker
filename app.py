@@ -139,13 +139,13 @@ def get_parameters_page_data(s, e):
     parameter = request.args.get('search_parameter')
     if parameter:
         query = query.filter(
-            ParameterEvent.parameter == str(parameter)
+            ParameterEvent.parameter.like(f'%{str(parameter)}%')
         )
     
     ilk = request.args.get('search_ilk')
     if ilk:
         query = query.filter(
-            ParameterEvent.ilk == str(ilk)
+            ParameterEvent.ilk.like(f'%{str(ilk)}%')
         )
 
     total_filtered = query.count()
