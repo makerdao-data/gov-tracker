@@ -110,8 +110,13 @@ def get_poll_page_data(poll):
 @app.route("/data/protocol_parameters/<s>/<e>", methods=["GET"])
 def get_parameters_page_data(s, e):
 
-    s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
-    e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+    # s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
+    # e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+
+    offset = int(request.args.get('offset'))
+
+    s = datetime.utcfromtimestamp(int(s) - (offset*3600)).__str__()[:19]
+    e = datetime.utcfromtimestamp(int(e) - (offset*3600)).__str__()[:19]
 
     session = next(get_db())
 
@@ -176,8 +181,13 @@ def get_parameters_page_data(s, e):
 @app.route("/data/parameters_history_export/<s>/<e>", methods=["GET"])
 def parameters_history_export(s, e):
 
-    s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
-    e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+    # s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
+    # e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
+
+    offset = int(request.args.get('offset'))
+
+    s = datetime.utcfromtimestamp(int(s) - (offset*3600)).__str__()[:19]
+    e = datetime.utcfromtimestamp(int(e) - (offset*3600)).__str__()[:19]
 
     session = next(get_db())
 
