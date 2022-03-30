@@ -23,8 +23,8 @@ class ParameterEvent(Base):
             'source': self.source,
             'parameter': self.parameter,
             'ilk': self.ilk,
-            'from_value': self.from_value,
-            'to_value': self.to_value
+            'from_value': round(self.from_value, 16),
+            'to_value': round(self.to_value, 16)
         }
 
     def to_list(self):
@@ -35,8 +35,8 @@ class ParameterEvent(Base):
             self.source,
             self.parameter,
             self.ilk,
-            self.from_value,
-            self.to_value
+            round(self.from_value, 16),
+            round(self.to_value, 16)
         ]
     
     __table_args__ = {"schema": "maker.public"}
