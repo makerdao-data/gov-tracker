@@ -18,8 +18,9 @@ from datetime import datetime
 import csv
 from io import StringIO
 from werkzeug.wrappers import Response
-
+from sqlalchemy import func
 from deps import get_db
+from utils.query import pull_filtered_data
 
 from views.main_view import main_page_view, main_page_data
 from views.address_views import address_page_view, address_data_view
@@ -29,15 +30,12 @@ from views.proxy_views import proxy_page_view, proxy_data_view
 from views.protocol_parameters_views import parameters_page_view, parameters_data_view
 from connectors.sf import sf, sf_disconnect
 
-
 from models import ParameterEvent
+from utils.query import pull_filtered_data
 
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
-
-
-from models import ParameterEvent
 
 
 # HTML endpoints -------------------------------------------
@@ -110,37 +108,8 @@ def get_poll_page_data(poll):
 @app.route("/data/protocol_parameters/<s>/<e>", methods=["GET"])
 def get_parameters_page_data(s, e):
 
-    # s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
-    # e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
-
-    offset = int(request.args.get('offset'))
-
-    s = datetime.utcfromtimestamp(int(s) - (offset*3600)).__str__()[:19]
-    e = datetime.utcfromtimestamp(int(e) - (offset*3600)).__str__()[:19]
-
     session = next(get_db())
-
-    query = session.query(ParameterEvent)
-    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
-
-    spell = request.args.get('search_spell')
-    if spell:
-        query = query.filter(
-            ParameterEvent.source == str(spell)
-        )
-
-    parameter = request.args.get('search_parameter')
-    if parameter:
-        query = query.filter(
-            ParameterEvent.parameter.like(f'%{str(parameter)}%')
-        )
-    
-    ilk = request.args.get('search_ilk')
-    if ilk:
-        query = query.filter(
-            ParameterEvent.ilk.like(f'%{str(ilk)}%')
-        )
-
+    query = pull_filtered_data(request, s, e, session, ParameterEvent)
     total_filtered = query.count()
 
     # sorting
@@ -181,36 +150,8 @@ def get_parameters_page_data(s, e):
 @app.route("/data/parameters_history_export/<s>/<e>", methods=["GET"])
 def parameters_history_export(s, e):
 
-    # s = datetime.fromtimestamp(int(s)/1000).__str__()[:19]
-    # e = datetime.fromtimestamp(int(e)/1000).__str__()[:19]
-
-    offset = int(request.args.get('offset'))
-
-    s = datetime.utcfromtimestamp(int(s) - (offset*3600)).__str__()[:19]
-    e = datetime.utcfromtimestamp(int(e) - (offset*3600)).__str__()[:19]
-
     session = next(get_db())
-
-    query = session.query(ParameterEvent)
-    query = query.filter(ParameterEvent.timestamp >= s).filter(ParameterEvent.timestamp <= e)
-
-    spell = request.args.get('search_spell')
-    if spell:
-        query = query.filter(
-            ParameterEvent.source == str(spell)
-        )
-
-    parameter = request.args.get('search_parameter')
-    if parameter:
-        query = query.filter(
-            ParameterEvent.parameter == str(parameter)
-        )
-    
-    ilk = request.args.get('search_ilk')
-    if ilk:
-        query = query.filter(
-            ParameterEvent.ilk == str(ilk)
-        )
+    query = pull_filtered_data(request, s, e, session, ParameterEvent)
 
     def generate():
 
