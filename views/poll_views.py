@@ -53,8 +53,9 @@ def poll_data_view(sf, poll):
 
         operations_query = f"""
             SELECT v.timestamp, v.tx_hash, 
-            case when d.name is not null then d.name else v.voter end as voter, 
-            v.operation, v.dapproval, v.option, '', v.proxy
+            v.voter,
+            v.operation, v.dapproval, v.option, '', v.proxy,
+            case when d.name is not null then d.name else v.voter end name 
             FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
             LEFT JOIN delegates.public.delegates d
             on v.voter = d.vote_delegate
@@ -148,7 +149,7 @@ def poll_data_view(sf, poll):
             if operation[3]:
                 operation_row = [
                     operation[0],
-                    link(operation[2], f"/address/{operation[2]}", operation[2])
+                    link(operation[8], f"/address/{operation[2]}", operation[2])
                     if operation[2]
                     else "",
                     op,
@@ -161,7 +162,7 @@ def poll_data_view(sf, poll):
 
                 operation_row = [
                     operation[0],
-                    link(operation[2], f"/address/{operation[2]}", operation[2])
+                    link(operation[8], f"/address/{operation[2]}", operation[2])
                     if operation[2]
                     else "",
                     "",
