@@ -71,7 +71,7 @@ def yay_data_view(sf, yay):
                 else "",
                 link(
                     operation[3],
-                    f"https://ethtx.info/{operation[1]}",
+                    f"https://etherscan.io/tx/{operation[1]}",
                     f"{operation[3]} transaction",
                     new_window=True,
                 )

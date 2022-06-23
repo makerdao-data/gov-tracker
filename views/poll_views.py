@@ -136,7 +136,7 @@ def poll_data_view(sf, poll):
             else:
                 op = link(
                     operation[3],
-                    f"https://ethtx.info/{operation[1]}",
+                    f"https://etherscan.io/tx/{operation[1]}",
                     operation[3],
                     new_window=True,
                 )

@@ -101,7 +101,7 @@ def address_data_view(sf, address):
                 if operation[3] != "FINAL_CHOICE":
                     ops = link(
                         operation[3],
-                        f"https://ethtx.info/{operation[1]}",
+                        f"https://etherscan.io/tx/{operation[1]}",
                         f"{operation[3]} transaction",
                         new_window=True,
                     )
