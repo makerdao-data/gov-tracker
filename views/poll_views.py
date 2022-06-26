@@ -77,8 +77,11 @@ def poll_data_view(sf, poll):
         additional_operations = []
         for i in operations:
             operations_supplementary_query = f"""
-                SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dstake, '{i[5]}', '', v.proxy
-                FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v  
+                SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dstake, '{i[5]}', '', v.proxy,
+                case when d.name is not null then d.name else v.voter end name
+                FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
+                LEFT JOIN delegates.public.delegates d
+                on v.voter = d.vote_delegate
                 WHERE v.voter = '{i[2]}'
                     and v.timestamp > '{i[0].__str__()[:19]}'
                     and v.timestamp <= '{end.__str__()[:19]}'
