@@ -160,7 +160,7 @@ MAP = {
         "contract_name": "Dog",
         "category": "Dai Stablecoin System - Liquidation 2.0 Module",
         "alias": "DOG",
-        "type" : "system-wide",
+        "type" : "ilk",
         "info": ""
     },
     "CLIPPER": {
