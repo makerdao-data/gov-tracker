@@ -24,6 +24,10 @@
                                     <th>DICU parameter name</th>
                                     <th>Contract</th>
                                     <th>Parameter</th>
+                                    <th>Address</th>
+                                    <th>Contract name</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
                                     <th>Info</th>
                                 </tr>
                             </thead>
@@ -62,10 +66,14 @@
                         data: data['parameters'],
                         autoWidth: false,
                         columns: [
-                            { data: "DICU_PARAMETER_NAME" },
-                            { data: "CONTRACT", width: '75px' },
-                            { data: "PARAMETER" },
-                            { data: "INFO", width: '65px' }
+                            { data: "DICU_PARAMETER_NAME", width: '125px' },
+                            { data: "CONTRACT", width: '100px' },
+                            { data: "PARAMETER", width: '100px' },
+                            { data: "ADDRESS", width: '400px' },
+                            { data: "CONTRACT_NAME", width: '250px' },
+                            { data: "CATEGORY" },
+                            { data: "TYPE", width: '75px' },
+                            { data: "INFO", width: '200px' }
                         ],
                         order: [[ 1, "desc" ]],
                         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],

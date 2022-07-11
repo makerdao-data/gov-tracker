@@ -14,6 +14,7 @@ import os
 from flask import render_template
 from connectors.sf import sf_connect
 from utils.tables import html_table, link
+from config import MAP
 
 
 def parameters_list_data_view(sf):
@@ -45,12 +46,28 @@ def parameters_list_data_view(sf):
             
             p = parameter[0].split('.')
 
+            address = None
+            contract_name = None
+            category = None
+            type = None
+            info = None
+            if p[0] in MAP:
+                address = MAP[p[0]]['address']
+                contract_name = MAP[p[0]]['contract_name']
+                category = MAP[p[0]]['category']
+                type = MAP[p[0]]['type']
+                info = MAP[p[0]]['info']
+
             parameters_data.append(
                 dict(
                     DICU_PARAMETER_NAME=parameter[0],
                     CONTRACT=p[0],
                     PARAMETER=p[-1],
-                    INFO= 'global' if len(p) == 2 else 'ilk',
+                    ADDRESS=address,
+                    CONTRACT_NAME=contract_name,
+                    CATEGORY=category,
+                    TYPE=type,
+                    INFO= info,
                 )
             )
 
