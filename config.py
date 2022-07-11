@@ -126,7 +126,7 @@ MAP = {
     "FLOPPER": {
         "address": "<a href='https://etherscan.io/address/0xa41b6ef151e06da0e34b009b86e828308986736d'>0xa41b6ef151e06da0e34b009b86e828308986736d</a>",
         "contract_name": "Flopper",
-        "category": "Dai Stablecoin System — System Stabilizer Module",
+        "category": "Dai Stablecoin System - System Stabilizer Module",
         "alias": "FLOPPER",
         "type" : "system-wide",
         "info": "Debt Auctons"
@@ -134,7 +134,7 @@ MAP = {
     "FLIPPER": {
         "address": "<a href='",
         "contract_name": "Flipper",
-        "category": "Dai Stablecoin System — Collateral Auction Module",
+        "category": "Dai Stablecoin System - Collateral Auction Module",
         "alias": "FLIPPER",
         "type" : "ilk",
         "info": "Collateral Auctions"
@@ -142,7 +142,7 @@ MAP = {
     "FLAPPER": {
         "address": "<a href='https://etherscan.io/address/0xa4f79bc4a5612bdda35904fdf55fc4cb53d1bff6'>0xa4f79bc4a5612bdda35904fdf55fc4cb53d1bff6</a>",
         "contract_name": "Flapper",
-        "category": "Dai Stablecoin System — System Stabilizer Module",
+        "category": "Dai Stablecoin System - System Stabilizer Module",
         "alias": "FLAPPER",
         "type" : "system-wide",
         "info": "Surplus Auctions"
