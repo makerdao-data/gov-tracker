@@ -28,6 +28,7 @@ from views.yay_views import yay_page_view, yay_data_view
 from views.poll_views import poll_page_view, poll_data_view
 from views.proxy_views import proxy_page_view, proxy_data_view
 from views.protocol_parameters_views import parameters_page_view, parameters_data_view
+from views.protocol_parameters_list import parameters_list_data_view, parameters_list_view
 from connectors.sf import sf, sf_disconnect
 
 from models import ParameterEvent
@@ -67,6 +68,11 @@ def poll_page(poll_id):
 @app.route("/protocol_parameters")
 def parameters_page():
     return parameters_page_view(sf)
+
+
+@app.route("/protocol_parameters_list")
+def parameters_list_page():
+    return parameters_list_view(sf)
 
 
 # DATA endpoints -------------------------------------------
@@ -176,6 +182,12 @@ def parameters_history_export(s, e):
     # add a filename
     response.headers.set("Content-Disposition", "attachment", filename="export.csv")
     return response
+
+
+@app.route("/data/protocol_parameters_list", methods=["GET"])
+def get_parameters_list_data():
+    dataset = parameters_list_data_view(sf)
+    return jsonify(dataset)
 
 
 # cleanup tasks
