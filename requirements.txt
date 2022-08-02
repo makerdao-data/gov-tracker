@@ -48,7 +48,6 @@ pandas==1.0.5
 parsimonious==0.8.1
 plotly==4.12.0
 protobuf==3.13.0
-pyarrow==0.17.1
 pycparser==2.20
 pycryptodome==3.9.9
 pycryptodomex==3.9.9
@@ -75,3 +74,4 @@ WTForms==2.3.3
 flask_sqlalchemy
 sqlalchemy
 snowflake-sqlalchemy
+pyarrow==6.0.0
