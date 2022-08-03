@@ -193,7 +193,7 @@ def address_page_view(sf, address):
             LEFT JOIN mcd.internal.vote_proxies p
             on v.voter = p.proxy
             ORDER BY v.stake desc) o
-            LEFT JOIN delegates.public.delegates d
+            LEFT JOIN delegates.public.mapped_delegates d
             on o.voter = d.vote_delegate
             WHERE lower(o.voter) = '{address}';
             """

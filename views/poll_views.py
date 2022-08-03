@@ -57,7 +57,7 @@ def poll_data_view(sf, poll):
             v.operation, v.dapproval, v.option, '', v.proxy,
             case when d.name is not null then d.name else v.voter end name 
             FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
-            LEFT JOIN delegates.public.delegates d
+            LEFT JOIN delegates.public.mapped_delegates d
             on v.voter = d.vote_delegate
             WHERE v.yay = '{poll}'
                 and v.timestamp >= '{start.__str__()[:19]}'
@@ -80,7 +80,7 @@ def poll_data_view(sf, poll):
                 SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dstake, '{i[5]}', '', v.proxy,
                 case when d.name is not null then d.name else v.voter end name
                 FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
-                LEFT JOIN delegates.public.delegates d
+                LEFT JOIN delegates.public.mapped_delegates d
                 on v.voter = d.vote_delegate
                 WHERE v.voter = '{i[2]}'
                     and v.timestamp > '{i[0].__str__()[:19]}'

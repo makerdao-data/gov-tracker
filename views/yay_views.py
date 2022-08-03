@@ -39,7 +39,7 @@ def yay_data_view(sf, yay):
         operations_query = f"""
         SELECT v.timestamp, v.tx_hash, v.voter, v.operation, v.dapproval, v.decisive, '', v.hat, v.order_index, d.name
         FROM {os.getenv("MCDGOV_DB", "mcd")}.public.votes v
-        LEFT JOIN delegates.public.delegates d
+        LEFT JOIN delegates.public.mapped_delegates d
         on v.voter = d.vote_delegate
         WHERE v.yay = '{yay}'
         ORDER BY v.order_index, v.operation;
