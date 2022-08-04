@@ -1,7 +1,7 @@
- 
 FROM python:3.8
 
 RUN mkdir /app
+RUN mkdir /certs
 WORKDIR /app
 COPY . /app/
 
@@ -12,7 +12,6 @@ RUN . /env/bin/activate
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-EXPOSE 80
 
 CMD gunicorn --workers 4 --max-requests 1000 \
     --timeout 240 --bind :80 --capture-output \

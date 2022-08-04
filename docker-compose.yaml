@@ -3,7 +3,7 @@ version: "3"
 services:
   web:
     build: .
-    image: mcdgov:latest
+    image: mcdgov:80
     ports:
       - "80:80"
     env_file:
@@ -11,3 +11,14 @@ services:
     volumes:
       - type: tmpfs
         target: /tmpfs
+      - /home/ubuntu/certs/mcdgov/:/certs
+  webssl:
+    image: mcdgov:443
+    ports:
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - type: tmpfs
+        target: /tmpfs
+      - /home/ubuntu/certs/mcdgov/:/certs
